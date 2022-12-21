@@ -56,6 +56,14 @@ Finally, we need a keywords file. This is technically optional, and `pepembed` c
 
 There are many other options as well (like specifying the transformer model to use), but the defaults work great for a first try. Use `pepembed --help` to see all options. If you are like me, and like to keep your secrets in a `.env` file, you can export them easily to the environment with `export $(cat .env | xargs)`
 
+### Install
+
+Clone this repository and install with `pip`:
+
+```console
+pip install .
+```
+
 ### Run
 
 ```console
