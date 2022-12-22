@@ -50,6 +50,8 @@ This will give you a qdrant instance served at http://localhost:6333. You can pa
 * `QDRANT_API_KEY`
 * `QDRANT_COLLECTION_NAME`
 
+*Unless you are running this for production, you most likely do not need to specify any of these.*
+
 **3. Keywords:**  
 Finally, we need a keywords file. This is technically optional, and `pepembed` comes with [default keywords](pepembed/const.py), but you may supply your own as a plain text file. This can be supplied only as command-line args:
 * `KEYWORDS_FILE`
