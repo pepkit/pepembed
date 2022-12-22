@@ -100,24 +100,28 @@ def main():
         descs = []
         for p in batch:
             d = encoder.mine_metadata_from_dict(p[3], min_desc_length=20)
-            if d != "":
+            if d != "" or d is None:
                 descs.append(d)
             else:
                 descs.append(f"{p[0]} {p[1]} {p[2]}")
 
         # encode descriptions
-        embeddings = encoder.encode(descs)
-        projects_encoded.extend(
-            [
-                dict(
-                    id=p[4],
-                    registry=f"{p[0]}/{p[1]}:{p[2]}",
-                    description=desc,
-                    embedding=embd,
-                )
-                for p, desc, embd in zip(batch, descs, embeddings)
-            ]
-        )
+        try:
+            embeddings = encoder.encode(descs)
+            projects_encoded.extend(
+                [
+                    dict(
+                        id=p[4],
+                        registry=f"{p[0]}/{p[1]}:{p[2]}",
+                        description=desc,
+                        embedding=embd,
+                    )
+                    for p, desc, embd in zip(batch, descs, embeddings)
+                ]
+            )
+        except Exception as e:
+            _LOGGER.error(f"Error encoding batch: {e}")
+
     _LOGGER.info("Encoding complete.")
     _LOGGER.info("Connecting to Qdrant.")
 
@@ -179,7 +183,8 @@ def main():
     # upsert in batches, it will timeout if we do not
     # a good batch size is ~1000 vectors. Running locally, this is super quick.
     for batch in tqdm(
-        batch_generator(all_points, UPSERT_BATCH_SIZE), total=len(all_points) // UPSERT_BATCH_SIZE
+        batch_generator(all_points, UPSERT_BATCH_SIZE),
+        total=len(all_points) // UPSERT_BATCH_SIZE,
     ):
         operation_info = qdrant.upsert(
             collection_name="projects", wait=True, points=batch

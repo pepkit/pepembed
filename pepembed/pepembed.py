@@ -38,7 +38,7 @@ class PEPEncoder(SentenceTransformer):
             SAMPLE_MODS_KEY not in project[CONFIG_KEY]
             or CONSTANT_KEY not in project[CONFIG_KEY][SAMPLE_MODS_KEY]
         ):
-            return project[NAME_KEY]
+            return project[NAME_KEY] or ""
 
         project_level_dict = project[CONFIG_KEY][SAMPLE_MODS_KEY][CONSTANT_KEY]
         project_level_attrs = list(project_level_dict.keys())
