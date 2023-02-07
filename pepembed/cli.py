@@ -128,12 +128,18 @@ def main():
     # get the qdrant connection info
     QDRANT_HOST = args.qdrant_host or os.environ.get("QDRANT_HOST")
     QDRANT_PORT = args.qdrant_port or os.environ.get("QDRANT_PORT")
+    QDRANT_API_KEY = args.qdrant_api_key or os.environ.get("QDRANT_API_KEY")
 
     # connect to qdrant
-    qdrant = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
+    qdrant = QdrantClient(
+        host=QDRANT_HOST, 
+        port=QDRANT_PORT,
+        api_key=QDRANT_API_KEY,
+
+    )
 
     # get the collection info
-    COLLECTION = args.qdrant_collection or QDRANT_DEFAULT_COLLECTION
+    COLLECTION = args.qdrant_collection or os.environ.get("QDRANT_COLLECTION") or QDRANT_DEFAULT_COLLECTION
 
     # recreate the collection if necessary
     if args.recreate_collection:
@@ -187,7 +193,7 @@ def main():
         total=len(all_points) // UPSERT_BATCH_SIZE,
     ):
         operation_info = qdrant.upsert(
-            collection_name="projects", wait=True, points=batch
+            collection_name=COLLECTION, wait=True, points=batch
         )
 
         assert operation_info.status == "completed"
@@ -196,7 +202,7 @@ def main():
 
     _LOGGER.info("Done.")
     _LOGGER.info(
-        f"View the collection at http://{QDRANT_HOST}:{QDRANT_PORT}/collections/{COLLECTION}"
+        f"View the collection at https://{QDRANT_HOST}:{QDRANT_PORT}/collections/{COLLECTION}"
     )
     _LOGGER.info(
         f"""View some points and their paylods with the following curl command:
@@ -205,7 +211,6 @@ def main():
         }}' 'http://{QDRANT_HOST}:{QDRANT_PORT}/collections/{COLLECTION}/points'
     """
     )
-
 
 if __name__ == "__main__":
     try:

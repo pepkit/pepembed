@@ -101,19 +101,18 @@ def build_argparser():
         default=None,
         help="Qdrant collection name (default: %(default)s)",
     )
+    parser.add_argument(
+        "--qdrant-api-key",
+        dest="qdrant_api_key",
+        default=None,
+        help="Qdrant API key (default: %(default)s)",
+    )
 
     parser.add_argument(
         "--recreate-collection",
         dest="recreate_collection",
         action="store_true",
         help="Recreate collection if it exists (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--qdrant-api-key",
-        dest="qdrant_api_key",
-        default=None,
-        help="Qdrant API key (default: %(default)s)",
     )
 
     parser.add_argument(
