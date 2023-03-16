@@ -28,7 +28,7 @@ jobs:
           --postgres-host ${{ secrets.POSTGRES_HOST }} \
           --postgres-user ${{ secrets.POSTGRES_USER }} \
           --postgres-password ${{ secrets.POSTGRES_PASSWORD }} \
-          --postgres-db ${{ secrets.POSTGRES_DB }} \
+          --postgres-db ${{ secrets.POSTGRES_DB }}
     
     
     
