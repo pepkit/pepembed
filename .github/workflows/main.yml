@@ -1,0 +1,35 @@
+# https://crontab.guru/#0_2_*_*_1
+# Every Monday at 2:00AM
+on:
+  schedule:
+  - cron: "0 2 * * 1"
+    branches:
+      - master
+  workflow_dispatch:
+  
+jobs:
+  index:
+    name: Embed PEP descriptions
+    runs-on: ubuntu-18.04
+    
+    steps:
+    - name: Setup Python
+    - uses: actions/setup-python@v4.5.0
+      with:
+        python-version: 3.10
+        
+    - name: Install pepembed
+      run: |
+        pip install .
+    
+    - name: Run
+      run: |
+        pepembed \
+          --postgres-host ${{ secrets.POSTGRES_HOST }} \
+          --postgres-user ${{ secrets.POSTGRES_USER }} \
+          --postgres-password ${{ secrets.POSTGRES_PASSWORD }} \
+          --postgres-db ${{ secrets.POSTGRES_DB }}
+    
+    
+    
+    
