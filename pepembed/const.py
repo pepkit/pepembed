@@ -1,4 +1,3 @@
-from qdrant_client import __version__ as qdrant_version
 from sentence_transformers import __version__ as st_version
 from platform import python_version
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
@@ -10,10 +9,9 @@ LOGGING_LEVEL = "INFO"
 
 QDRANT_DEFAULT_HOST = "localhost"
 QDRANT_DEFAULT_PORT = 6333
-QDRANT_DEFAULT_COLLECTION = "projects"
+QDRANT_DEFAULT_COLLECTION = "pephub"
 
 VERSIONS = {
-    "qdrant_version": qdrant_version,
     "sentence_transformers_version": st_version,
     "python_version": python_version(),
 }

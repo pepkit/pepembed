@@ -132,7 +132,7 @@ def main():
 
     # connect to qdrant
     qdrant = QdrantClient(
-        host=QDRANT_HOST, 
+        url=QDRANT_HOST, 
         port=QDRANT_PORT,
         api_key=QDRANT_API_KEY,
 
