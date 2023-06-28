@@ -24,6 +24,7 @@ PROJECT_TABLE = "projects"
 PROJECT_COLUMN = "project_value"
 PROJECT_NAME_COLUMN = "name"
 NAMESPACE_COLUMN = "namespace"
+DESCRIPTION_COLUNM = "description"
 TAG_COLUMN = "tag"
 ROW_ID_COLUMN = "id"
 

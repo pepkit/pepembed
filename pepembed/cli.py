@@ -14,6 +14,7 @@ from .const import (
     LEVEL_BY_VERBOSITY,
     LOGGING_LEVEL,
     PKG_NAME,
+    DESCRIPTION_COLUNM,
     PROJECT_TABLE,
     PROJECT_COLUMN,
     PROJECT_NAME_COLUMN,
@@ -74,7 +75,7 @@ def main():
     # get list of peps
     _LOGGER.info("Pulling PEPs from database.")
     curs.execute(
-        f"SELECT {NAMESPACE_COLUMN}, {PROJECT_NAME_COLUMN}, {TAG_COLUMN}, {PROJECT_COLUMN}, {ROW_ID_COLUMN} FROM {PROJECT_TABLE}"
+        f"SELECT {NAMESPACE_COLUMN}, {PROJECT_NAME_COLUMN}, {TAG_COLUMN}, {PROJECT_COLUMN}, {DESCRIPTION_COLUNM}, {ROW_ID_COLUMN} FROM {PROJECT_TABLE}"
     )
     projects = curs.fetchall()
 
@@ -135,7 +136,6 @@ def main():
         url=QDRANT_HOST, 
         port=QDRANT_PORT,
         api_key=QDRANT_API_KEY,
-
     )
 
     # get the collection info
@@ -148,6 +148,7 @@ def main():
             vectors_config=models.VectorParams(
                 size=EMBEDDING_DIM, distance=models.Distance.COSINE
             ),
+            on_disk_payload=True
         )
         collection_info = qdrant.get_collection(collection_name=COLLECTION)
     else:
@@ -163,6 +164,7 @@ def main():
                 vectors_config=models.VectorParams(
                     size=EMBEDDING_DIM, distance=models.Distance.COSINE
                 ),
+                on_disk_payload=True
             )
             collection_info = qdrant.get_collection(collection_name=COLLECTION)
 
