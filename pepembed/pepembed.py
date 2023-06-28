@@ -4,6 +4,7 @@ from peppy import Project
 from peppy.const import SAMPLE_MODS_KEY, CONSTANT_KEY, CONFIG_KEY, NAME_KEY
 from sentence_transformers import SentenceTransformer
 
+import flatdict
 
 from .utils import read_in_key_words
 from .const import DEFAULT_KEYWORDS, MIN_DESCRIPTION_LENGTH
@@ -43,14 +44,16 @@ class PEPEncoder(SentenceTransformer):
         ):
             return project[NAME_KEY] or ""
 
-        project_level_dict: dict = project_config[SAMPLE_MODS_KEY][CONSTANT_KEY]
+        #project_level_dict: dict = project_config[SAMPLE_MODS_KEY][CONSTANT_KEY]
+        #Flatten dictionary
+        project_level_dict: dict = flatdict.FlatDict(project_config)
         project_level_attrs = list(project_level_dict.keys())
         desc = ""
 
         # build up a description
         for attr in project_level_attrs:
             if any([kw in attr for kw in self.keywords]):
-                desc += project_level_dict[attr] + " "
+                desc += str(project_level_dict[attr]) + " "
 
         # return if description is sufficient
         if len(desc) > min_desc_length:

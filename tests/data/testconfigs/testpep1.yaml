@@ -1,0 +1,42 @@
+pep_version: 2.1.0
+project_name: GSE105734
+sample_table: GSE105734_samples.csv
+sample_modifiers:
+  append:
+    description: "Mammary gland, adenocarcinoma. (PMID: 4357757)FOS ChIP-seq on human MCF-7"
+    output_file_path: FILES
+    sample_description: https://www.encodeproject.org/experiments/ENCSR569XNP/, ***************
+    sample_data_processing: See GSM*_README.txt supplementary file linked below
+  derive:
+    sources:
+      FILES: ./{gse}/{file}
+    attributes: 
+     - output_file_path
+experiment_metadata:
+  series_type: Genome binding/occupancy profiling by high throughput sequencing
+  series_gp_id: PRJNA63443
+  series_title: ChIP-seq from MCF-7 (ENCSR569XNP)
+  series_status: Public on Oct 23 2017
+  series_project: ENCODE
+  series_summary: FOS ChIP-seq on human MCF-7 +  + For data usage terms and conditions, please refer to http://www.genome.gov/27528022 and http://www.genome.gov/Pages/Research/ENCODE/ENCODE_Data_Use_Policy_for_External_Users_03-07-14.pdf
+  series_pubmed_id: 22955616
+  series_sample_id: GSM2827569 + GSM2827570
+  series_platform_id: GPL11154
+  series_contact_city: Stanford
+  series_contact_name: ENCODE,,DCC
+  series_sample_taxid: 9606
+  series_contact_email: encode-help@lists.stanford.edu
+  series_contact_state: CA
+  series_geo_accession: GSE105734
+  series_overall_design: https://www.encodeproject.org/ENCSR569XNP/
+  series_platform_taxid: 9606
+  series_contact_address: 300 Pasteur Dr
+  series_contact_country: USA
+  series_sample_organism: Homo sapiens
+  series_submission_date: Oct 21 2017
+  series_last_update_date: Jul 25 2021
+  series_contact_institute: ENCODE DCC
+  series_platform_organism: Homo sapiens
+  series_supplementary_file: ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF124QJZ_peaks_hg19.bed.gz + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF160WPD_fold_change_over_control_GRCh38.bigWig + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF170POB_optimal_idr_thresholded_peaks_GRCh38.bed.gz + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF174XVH_signal_p-value_GRCh38.bigWig + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF185VWZ_fold_change_over_control_hg19.bigWig + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF220ZQF_conservative_idr_thresholded_peaks_GRCh38.bigBed + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF234YXL_peaks_GRCh38.bigBed + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF345JQL_optimal_idr_thresholded_peaks_hg19.bigBed + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF397ZDJ_peaks_hg19.bigBed + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF419PYB_signal_p-value_hg19.bigWig + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF538VTB_conservative_idr_thresholded_peaks_hg19.bigBed + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF663JQC_conservative_idr_thresholded_peaks_hg19.bed.gz + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF732LJO_optimal_idr_thresholded_peaks_GRCh38.bigBed + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF888RBY_peaks_GRCh38.bed.gz + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF890YVJ_conservative_idr_thresholded_peaks_GRCh38.bed.gz + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_ENCFF965AIZ_optimal_idr_thresholded_peaks_hg19.bed.gz + ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE105nnn/GSE105734/suppl/GSE105734_RAW.tar
+  series_contact_zip_postal_code: 94305-5120
+

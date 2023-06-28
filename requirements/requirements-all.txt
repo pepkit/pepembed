@@ -3,6 +3,6 @@ sentence-transformers
 peppy
 python-dotenv
 qdrant-client
-psycopg2
+#psycopg2
 ubiquerg
 tqdm

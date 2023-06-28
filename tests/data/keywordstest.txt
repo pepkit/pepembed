@@ -1,0 +1,7 @@
+protocol
+description
+processing
+source
+series_summary
+file_path
+series_pubmed_id

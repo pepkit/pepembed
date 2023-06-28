@@ -17,6 +17,7 @@ VERSIONS = {
 }
 
 DEFAULT_KEYWORDS = ["cell", "protocol", "description", "processing", "source"]
+DEFAULT_MODEL = "sentence-transformers/all-MiniLM-L12-v2"
 
 MIN_DESCRIPTION_LENGTH = 5
 
