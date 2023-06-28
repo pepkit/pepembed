@@ -10,6 +10,13 @@ def read_in_key_words(key_words_file: str) -> List[str]:
     return key_words
 
 
+def generate_key_words(key_words_file: str) -> List[str]:
+    """Generates keywords based on current PEPs by finding most common shared attributes"""
+    # TODO Generate a dynamic list of keywords for custom PEPs
+    key_words = []
+    return key_words
+
+
 def batch_generator(iterable, batch_size) -> List:
     """Batch generator."""
     l = len(iterable)

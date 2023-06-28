@@ -132,14 +132,17 @@ def main():
 
     # connect to qdrant
     qdrant = QdrantClient(
-        url=QDRANT_HOST, 
+        url=QDRANT_HOST,
         port=QDRANT_PORT,
         api_key=QDRANT_API_KEY,
-
     )
 
     # get the collection info
-    COLLECTION = args.qdrant_collection or os.environ.get("QDRANT_COLLECTION") or QDRANT_DEFAULT_COLLECTION
+    COLLECTION = (
+        args.qdrant_collection
+        or os.environ.get("QDRANT_COLLECTION")
+        or QDRANT_DEFAULT_COLLECTION
+    )
 
     # recreate the collection if necessary
     if args.recreate_collection:
@@ -211,6 +214,7 @@ def main():
         }}' 'http://{QDRANT_HOST}:{QDRANT_PORT}/collections/{COLLECTION}/points'
     """
     )
+
 
 if __name__ == "__main__":
     try:

@@ -3,3 +3,8 @@ protocol
 description
 processing
 source
+table
+file_path
+pep_version
+project_name
+experiment_metadata
