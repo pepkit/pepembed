@@ -6,3 +6,4 @@ qdrant-client
 #psycopg2
 ubiquerg
 tqdm
+flatdict
