@@ -118,9 +118,10 @@ BATCH_SIZE = args.batch_size or DEFAULT_BATCH_SIZE
 
 # we need to work in batches since its much faster
 projects_encoded = []
-for i, batch in enumerate(tqdm(
+i = 0
+for batch in tqdm(
     batch_generator(projects, BATCH_SIZE), total=len(projects) // BATCH_SIZE
-)):
+):
     # build list of descriptions for batch
     descs = []
     for p in batch:
@@ -150,6 +151,8 @@ for i, batch in enumerate(tqdm(
         )
     except Exception as e:
         _LOGGER.error(f"Error encoding batch: {e}")
+    
+    i += 1
 
 # %%
 _LOGGER.info("Encoding complete.")

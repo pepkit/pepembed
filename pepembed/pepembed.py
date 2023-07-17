@@ -35,9 +35,12 @@ class PEPEncoder(SentenceTransformer):
         :param project: A dictionary representing a peppy.Project instance.
         :param min_desc_length: The minimum length of the description.
         """
-        project_config = project.get(CONFIG_KEY) or project.get(
-            CONFIG_KEY.replace("_", "")
-        )
+        # project_config = project.get(CONFIG_KEY) or project.get(
+        #     CONFIG_KEY.replace("_", "")
+        # )
+        # fix bug where config key is not in the project,
+        # new database schema does not have config key
+        project_config = project
         if project_config is None:
             return ""
         if (
@@ -52,6 +55,11 @@ class PEPEncoder(SentenceTransformer):
         project_level_attrs = list(project_level_dict.keys())
         desc = ""
 
+        # use description first
+        if "description" in project_level_attrs:
+            desc += project_level_dict["description"] + " "
+            project_level_attrs.remove("description")
+            
         # build up a description
         for attr in project_level_attrs:
             if any([kw in attr for kw in self.keywords]):
