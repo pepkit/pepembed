@@ -34,7 +34,8 @@ class PEPEncoder(SentenceTransformer):
         :param project: A dictionary representing a peppy.Project instance.
         :param min_desc_length: The minimum length of the description.
         """
-        project_config = project.get(CONFIG_KEY) or project.get(CONFIG_KEY.replace("_", ""))
+        # project_config = project.get(CONFIG_KEY) or project.get(CONFIG_KEY.replace("_", ""))
+        project_config = project
         if project_config is None:
             return ""
         if (

@@ -23,6 +23,7 @@ MIN_DESCRIPTION_LENGTH = 5
 PROJECT_TABLE = "projects"
 PROJECT_COLUMN = "project_value"
 PROJECT_NAME_COLUMN = "name"
+CONFIG_COLUMN = "config"
 NAMESPACE_COLUMN = "namespace"
 DESCRIPTION_COLUNM = "description"
 TAG_COLUMN = "tag"
