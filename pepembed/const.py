@@ -22,7 +22,7 @@ DEFAULT_MODEL = "sentence-transformers/all-MiniLM-L12-v2"
 MIN_DESCRIPTION_LENGTH = 5
 
 PROJECT_TABLE = "projects"
-PROJECT_COLUMN = "project_value"
+CONFIG_COLUMN = "config"
 PROJECT_NAME_COLUMN = "name"
 NAMESPACE_COLUMN = "namespace"
 TAG_COLUMN = "tag"
