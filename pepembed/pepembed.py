@@ -55,12 +55,13 @@ class PEPEncoder(SentenceTransformer):
         project_level_attrs = list(project_level_dict.keys())
         desc = ""
 
-        # use description first
+        # use description first - this is just for 
+        # the UI, so things look good
         if "description" in project_level_attrs:
             desc += project_level_dict["description"] + " "
             project_level_attrs.remove("description")
             
-        # build up a description
+        # build up a description using the rest
         for attr in project_level_attrs:
             if any([kw in attr for kw in self.keywords]):
                 desc += str(project_level_dict[attr]) + " "
