@@ -1,4 +1,3 @@
-from sentence_transformers import __version__ as st_version
 from platform import python_version
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
 
@@ -12,7 +11,6 @@ QDRANT_DEFAULT_PORT = 6333
 QDRANT_DEFAULT_COLLECTION = "pephub"
 
 VERSIONS = {
-    "sentence_transformers_version": st_version,
     "python_version": python_version(),
 }
 

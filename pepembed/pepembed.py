@@ -2,7 +2,7 @@ import numpy as np
 from typing import List, Dict, Any, Union
 from peppy import Project
 from peppy.const import SAMPLE_MODS_KEY, CONSTANT_KEY, CONFIG_KEY, NAME_KEY
-from sentence_transformers import SentenceTransformer
+from fastembed.embedding import FlagEmbedding as Embedding
 
 import flatdict
 
@@ -10,7 +10,7 @@ from .utils import read_in_key_words
 from .const import DEFAULT_KEYWORDS, MIN_DESCRIPTION_LENGTH
 
 
-class PEPEncoder(SentenceTransformer):
+class PEPEncoder(Embedding):
     """
     Simple wrapper of the sentence trasnformer class that lets you
     embed metadata inside a PEP.
@@ -55,11 +55,13 @@ class PEPEncoder(SentenceTransformer):
         project_level_attrs = list(project_level_dict.keys())
         desc = ""
 
-        # use description first - this is just for 
-        # the UI, so things look good
-        if "description" in project_level_attrs:
-            desc += project_level_dict["description"] + " "
-            project_level_attrs.remove("description")
+        # search for "summary" in keys, if found, use that first, then pop it out
+        # should catch if key simply contains "summary"
+        for attr in project_level_attrs:
+            if "summary" in attr:
+                desc += str(project_level_dict[attr]) + " "
+                project_level_attrs.remove(attr)
+                break
             
         # build up a description using the rest
         for attr in project_level_attrs:
@@ -87,38 +89,3 @@ class PEPEncoder(SentenceTransformer):
         return self.mine_metadata_from_dict(
             project_dict, min_desc_length=min_desc_length
         )
-
-    def embed(
-        self, projects: Union[dict, List[dict], Project, List[Project]], **kwargs
-    ) -> np.ndarray:
-        """
-        Embed a PEP based on it's metadata.
-
-        :param projects: A PEP or list of PEPs to embed.
-        :param kwargs: Keyword arguments to pass to the `encode` method of the SentenceTransformer class.
-        """
-        # if single dictionary is passed
-        if isinstance(projects, dict):
-            desc = self.mine_metadata_from_dict(projects)
-            return super().encode(desc, **kwargs)
-
-        # if single peppy.Project is passed
-        elif isinstance(projects, Project):
-            desc = self.mine_metadata_from_pep(projects)
-            return super().encode(desc, **kwargs)
-
-        # if list of dictionaries is passed
-        elif isinstance(projects, list) and isinstance(projects[0], dict):
-            descs = [self.mine_metadata_from_dict(p) for p in projects]
-            return super().encode(descs, **kwargs)
-
-        # if list of peppy.Projects is passed
-        elif isinstance(projects, list) and isinstance(projects[0], Project):
-            descs = [self.mine_metadata_from_pep(p) for p in projects]
-            return super().encode(descs, **kwargs)
-
-        # else, return ValueError
-        else:
-            raise ValueError(
-                "Invalid input type. Must be a dictionary, peppy.Project, list of dictionaries, or list of peppy.Projects."
-            )
