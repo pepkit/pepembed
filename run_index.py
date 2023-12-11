@@ -165,7 +165,6 @@ qdrant = QdrantClient(
     api_key=QDRANT_API_KEY,
 )
 
-# %%
 # get the collection info
 COLLECTION = (
     args.qdrant_collection
@@ -173,7 +172,6 @@ COLLECTION = (
     or QDRANT_DEFAULT_COLLECTION
 )
 
-# %%
 # recreate the collection if necessary
 if args.recreate_collection:
     qdrant.recreate_collection(
@@ -222,7 +220,6 @@ _LOGGER.info(f"Collection status: {collection_info.status}")
 _LOGGER.info("Inserting embeddings into Qdrant.")
 _LOGGER.info("Building point strcutures.")
 
-# %%
 # build up point structs
 all_points = [
     PointStruct(
@@ -236,7 +233,6 @@ all_points = [
 # determine upsert batch size
 UPSERT_BATCH_SIZE = args.upsert_batch_size or DEFAULT_UPSERT_BATCH_SIZE
 
-# %%
 # upsert in batches, it will timeout if we do not
 # a good batch size is ~1000 vectors. Running locally, this is super quick.
 for batch in tqdm(
