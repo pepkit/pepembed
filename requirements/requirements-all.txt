@@ -1,8 +1,9 @@
 logmuse
-sentence-transformers
+fastembed
 peppy
 python-dotenv
 qdrant-client
 psycopg2
 ubiquerg
 tqdm
+flatdict

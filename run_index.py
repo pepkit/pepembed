@@ -47,7 +47,7 @@ args = Namespace(
     verbosity=None,
     logging_level=None,
     recreate_collection=True,
-    hf_model="sentence-transformers/all-MiniLM-L12-v2",
+    hf_model=os.environ.get("HF_MODEL"),
     keywords_file="keywords.txt",
     batch_size=DEFAULT_BATCH_SIZE,
     upsert_batch_size=DEFAULT_UPSERT_BATCH_SIZE,
@@ -107,9 +107,8 @@ _LOGGER.info(f"Found {len(projects)} PEPs.")
 # initialize encoder
 _LOGGER.info("Initializing encoder.")
 encoder = PEPEncoder(args.hf_model, keywords_file=args.keywords_file)
-EMBEDDING_DIM = int(encoder.get_sentence_embedding_dimension())
+EMBEDDING_DIM = 384 # hardcoded for sentence-transformers/all-MiniLM-L12-v2 and BAAI/bge-small-en-v1.5
 _LOGGER.info(f"Computing embeddings of {EMBEDDING_DIM} dimensions.")
-
 # %%
 # encode PEPs in batches
 _LOGGER.info("Encoding PEPs.")
@@ -117,9 +116,10 @@ BATCH_SIZE = args.batch_size or DEFAULT_BATCH_SIZE
 
 # we need to work in batches since its much faster
 projects_encoded = []
-for i, batch in enumerate(tqdm(
-    batch_generator(projects, BATCH_SIZE), total=len(projects) // BATCH_SIZE
-)):
+i = 0
+for batch in tqdm(
+    batch_generator(projects, BATCH_SIZE), total=(len(projects) // BATCH_SIZE)
+):
     # build list of descriptions for batch
     descs = []
     for p in batch:
@@ -128,14 +128,12 @@ for i, batch in enumerate(tqdm(
             descs.append(d)
         else:
             descs.append(f"{p[0]} {p[1]} {p[2]}")
-    
     # every 100th batch, print out the first description
     if i % 100 == 0:
         _LOGGER.info(f"First description: {descs[0]}")
-
     # encode descriptions
     try:
-        embeddings = encoder.encode(descs)
+        embeddings = encoder.embed(descs)
         projects_encoded.extend(
             [
                 dict(
@@ -149,6 +147,7 @@ for i, batch in enumerate(tqdm(
         )
     except Exception as e:
         _LOGGER.error(f"Error encoding batch: {e}")
+    i += 1
 
 # %%
 _LOGGER.info("Encoding complete.")
@@ -181,6 +180,13 @@ if args.recreate_collection:
             size=EMBEDDING_DIM, distance=models.Distance.COSINE
         ),
         on_disk_payload=True,
+        quantization_config=models.ScalarQuantization(
+            scalar=models.ScalarQuantizationConfig(
+                type=models.ScalarType.INT8,
+                quantile=0.99,
+                always_ram=True,
+            ),
+        ),
     )
     collection_info = qdrant.get_collection(collection_name=COLLECTION)
 else:
@@ -197,6 +203,13 @@ else:
                 size=EMBEDDING_DIM, distance=models.Distance.COSINE
             ),
             on_disk_payload=True,
+            quantization_config=models.ScalarQuantization(
+                scalar=models.ScalarQuantizationConfig(
+                    type=models.ScalarType.INT8,
+                    quantile=0.99,
+                    always_ram=True,
+                ),
+            ),
         )
         collection_info = qdrant.get_collection(collection_name=COLLECTION)
 
@@ -226,9 +239,7 @@ for batch in tqdm(
     batch_generator(all_points, UPSERT_BATCH_SIZE),
     total=len(all_points) // UPSERT_BATCH_SIZE,
 ):
-    operation_info = qdrant.upsert(
-        collection_name=COLLECTION, wait=True, points=batch
-    )
+    operation_info = qdrant.upsert(collection_name=COLLECTION, wait=True, points=batch)
 
     assert operation_info.status == "completed"
 

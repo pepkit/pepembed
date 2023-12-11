@@ -2,14 +2,15 @@ import numpy as np
 from typing import List, Dict, Any, Union
 from peppy import Project
 from peppy.const import SAMPLE_MODS_KEY, CONSTANT_KEY, CONFIG_KEY, NAME_KEY
-from sentence_transformers import SentenceTransformer
+from fastembed.embedding import FlagEmbedding as Embedding
 
+import flatdict
 
 from .utils import read_in_key_words
 from .const import DEFAULT_KEYWORDS, MIN_DESCRIPTION_LENGTH
 
 
-class PEPEncoder(SentenceTransformer):
+class PEPEncoder(Embedding):
     """
     Simple wrapper of the sentence trasnformer class that lets you
     embed metadata inside a PEP.
@@ -34,7 +35,11 @@ class PEPEncoder(SentenceTransformer):
         :param project: A dictionary representing a peppy.Project instance.
         :param min_desc_length: The minimum length of the description.
         """
-        # project_config = project.get(CONFIG_KEY) or project.get(CONFIG_KEY.replace("_", ""))
+        # project_config = project.get(CONFIG_KEY) or project.get(
+        #     CONFIG_KEY.replace("_", "")
+        # )
+        # fix bug where config key is not in the project,
+        # new database schema does not have config key
         project_config = project
         if project_config is None:
             return ""
@@ -44,14 +49,24 @@ class PEPEncoder(SentenceTransformer):
         ):
             return project[NAME_KEY] or ""
 
-        project_level_dict: dict = project_config[SAMPLE_MODS_KEY][CONSTANT_KEY]
+        # project_level_dict: dict = project_config[SAMPLE_MODS_KEY][CONSTANT_KEY]
+        # Flatten dictionary
+        project_level_dict: dict = flatdict.FlatDict(project_config)
         project_level_attrs = list(project_level_dict.keys())
         desc = ""
 
-        # build up a description
+        # search for "summary" in keys, if found, use that first, then pop it out
+        # should catch if key simply contains "summary"
+        for attr in project_level_attrs:
+            if "summary" in attr:
+                desc += str(project_level_dict[attr]) + " "
+                project_level_attrs.remove(attr)
+                break
+            
+        # build up a description using the rest
         for attr in project_level_attrs:
             if any([kw in attr for kw in self.keywords]):
-                desc += project_level_dict[attr] + " "
+                desc += str(project_level_dict[attr]) + " "
 
         # return if description is sufficient
         if len(desc) > min_desc_length:
@@ -74,38 +89,3 @@ class PEPEncoder(SentenceTransformer):
         return self.mine_metadata_from_dict(
             project_dict, min_desc_length=min_desc_length
         )
-
-    def embed(
-        self, projects: Union[dict, List[dict], Project, List[Project]], **kwargs
-    ) -> np.ndarray:
-        """
-        Embed a PEP based on it's metadata.
-
-        :param projects: A PEP or list of PEPs to embed.
-        :param kwargs: Keyword arguments to pass to the `encode` method of the SentenceTransformer class.
-        """
-        # if single dictionary is passed
-        if isinstance(projects, dict):
-            desc = self.mine_metadata_from_dict(projects)
-            return super().encode(desc, **kwargs)
-
-        # if single peppy.Project is passed
-        elif isinstance(projects, Project):
-            desc = self.mine_metadata_from_pep(projects)
-            return super().encode(desc, **kwargs)
-
-        # if list of dictionaries is passed
-        elif isinstance(projects, list) and isinstance(projects[0], dict):
-            descs = [self.mine_metadata_from_dict(p) for p in projects]
-            return super().encode(descs, **kwargs)
-
-        # if list of peppy.Projects is passed
-        elif isinstance(projects, list) and isinstance(projects[0], Project):
-            descs = [self.mine_metadata_from_pep(p) for p in projects]
-            return super().encode(descs, **kwargs)
-
-        # else, return ValueError
-        else:
-            raise ValueError(
-                "Invalid input type. Must be a dictionary, peppy.Project, list of dictionaries, or list of peppy.Projects."
-            )

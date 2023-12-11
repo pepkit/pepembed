@@ -1,3 +1,4 @@
+# %%
 import sys
 import logging
 import os
@@ -16,7 +17,7 @@ from .const import (
     PKG_NAME,
     DESCRIPTION_COLUNM,
     PROJECT_TABLE,
-    PROJECT_COLUMN,
+    CONFIG_COLUMN,
     PROJECT_NAME_COLUMN,
     NAMESPACE_COLUMN,
     TAG_COLUMN,
@@ -29,7 +30,7 @@ from .argparser import build_argparser
 from .pepembed import PEPEncoder
 from .utils import batch_generator
 
-
+# %%
 def main():
     """Entry point for the CLI."""
     load_dotenv()
@@ -75,7 +76,7 @@ def main():
     # get list of peps
     _LOGGER.info("Pulling PEPs from database.")
     curs.execute(
-        f"SELECT {NAMESPACE_COLUMN}, {PROJECT_NAME_COLUMN}, {TAG_COLUMN}, {PROJECT_COLUMN}, {DESCRIPTION_COLUNM}, {ROW_ID_COLUMN} FROM {PROJECT_TABLE}"
+        f"SELECT {NAMESPACE_COLUMN}, {PROJECT_NAME_COLUMN}, {TAG_COLUMN}, {CONFIG_COLUMN}, {ROW_ID_COLUMN} FROM {PROJECT_TABLE}"
     )
     projects = curs.fetchall()
 
@@ -94,9 +95,9 @@ def main():
 
     # we need to work in batches since its much faster
     projects_encoded = []
-    for batch in tqdm(
+    for i, batch in enumerate(tqdm(
         batch_generator(projects, BATCH_SIZE), total=len(projects) // BATCH_SIZE
-    ):
+    )):
         # build list of descriptions for batch
         descs = []
         for p in batch:
@@ -105,6 +106,10 @@ def main():
                 descs.append(d)
             else:
                 descs.append(f"{p[0]} {p[1]} {p[2]}")
+        
+        # every 100th batch, print out the first description
+        if i % 100 == 0:
+            _LOGGER.info(f"First description: {descs[0]}")
 
         # encode descriptions
         try:
@@ -133,13 +138,17 @@ def main():
 
     # connect to qdrant
     qdrant = QdrantClient(
-        url=QDRANT_HOST, 
+        url=QDRANT_HOST,
         port=QDRANT_PORT,
         api_key=QDRANT_API_KEY,
     )
 
     # get the collection info
-    COLLECTION = args.qdrant_collection or os.environ.get("QDRANT_COLLECTION") or QDRANT_DEFAULT_COLLECTION
+    COLLECTION = (
+        args.qdrant_collection
+        or os.environ.get("QDRANT_COLLECTION")
+        or QDRANT_DEFAULT_COLLECTION
+    )
 
     # recreate the collection if necessary
     if args.recreate_collection:
@@ -148,7 +157,7 @@ def main():
             vectors_config=models.VectorParams(
                 size=EMBEDDING_DIM, distance=models.Distance.COSINE
             ),
-            on_disk_payload=True
+            on_disk_payload=True,
         )
         collection_info = qdrant.get_collection(collection_name=COLLECTION)
     else:
@@ -164,7 +173,7 @@ def main():
                 vectors_config=models.VectorParams(
                     size=EMBEDDING_DIM, distance=models.Distance.COSINE
                 ),
-                on_disk_payload=True
+                on_disk_payload=True,
             )
             collection_info = qdrant.get_collection(collection_name=COLLECTION)
 
@@ -213,6 +222,7 @@ def main():
         }}' 'http://{QDRANT_HOST}:{QDRANT_PORT}/collections/{COLLECTION}/points'
     """
     )
+
 
 if __name__ == "__main__":
     try:

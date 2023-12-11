@@ -1,4 +1,3 @@
-from sentence_transformers import __version__ as st_version
 from platform import python_version
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
 
@@ -12,16 +11,16 @@ QDRANT_DEFAULT_PORT = 6333
 QDRANT_DEFAULT_COLLECTION = "pephub"
 
 VERSIONS = {
-    "sentence_transformers_version": st_version,
     "python_version": python_version(),
 }
 
 DEFAULT_KEYWORDS = ["cell", "protocol", "description", "processing", "source"]
+DEFAULT_MODEL = "sentence-transformers/all-MiniLM-L12-v2"
 
 MIN_DESCRIPTION_LENGTH = 5
 
 PROJECT_TABLE = "projects"
-PROJECT_COLUMN = "project_value"
+CONFIG_COLUMN = "config"
 PROJECT_NAME_COLUMN = "name"
 CONFIG_COLUMN = "config"
 NAMESPACE_COLUMN = "namespace"
