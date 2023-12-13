@@ -162,3 +162,4 @@ cython_debug/
 # qdrant
 qdrant_storage/
 local_cache/
+scripts/
