@@ -1,8 +1,10 @@
-import numpy as np
-from typing import List, Dict, Any, Union
+from typing import List, Dict
+
+import torch
+
 from peppy import Project
-from peppy.const import SAMPLE_MODS_KEY, CONSTANT_KEY, CONFIG_KEY, NAME_KEY
-from fastembed.embedding import FlagEmbedding as Embedding
+from peppy.const import SAMPLE_MODS_KEY, CONSTANT_KEY, NAME_KEY
+from sentence_transformers import SentenceTransformer
 
 import flatdict
 
@@ -10,14 +12,16 @@ from .utils import read_in_key_words
 from .const import DEFAULT_KEYWORDS, MIN_DESCRIPTION_LENGTH
 
 
-class PEPEncoder(Embedding):
+class PEPEncoder(SentenceTransformer):
     """
     Simple wrapper of the sentence trasnformer class that lets you
     embed metadata inside a PEP.
     """
 
     def __init__(self, model_name: str, keywords_file: str = None, **kwargs):
-        super().__init__(model_name, **kwargs)
+        if "device" not in kwargs:
+            kwargs["device"] = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        super().__init__(model_name)
         self.keywords_file = keywords_file
 
         # read in keywords

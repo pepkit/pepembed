@@ -1,5 +1,5 @@
 logmuse
-fastembed
+sentence-transformers
 peppy
 python-dotenv
 qdrant-client

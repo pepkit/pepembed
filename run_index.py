@@ -1,4 +1,3 @@
-# %%
 import sys
 import logging
 import os
@@ -31,7 +30,6 @@ from pepembed.utils import batch_generator
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-# %%
 load_dotenv()
 args = Namespace(
     postgres_user=os.environ.get("POSTGRES_USER"),
@@ -53,7 +51,6 @@ args = Namespace(
     upsert_batch_size=DEFAULT_UPSERT_BATCH_SIZE,
 )
 
-# %%
 # Set the logging level.
 if args.dbg:
     # Debug mode takes precedence and will listen for all messages.
@@ -71,7 +68,6 @@ init_logger(name="peppy", **logger_kwargs)
 global _LOGGER
 _LOGGER = init_logger(name=PKG_NAME, **logger_kwargs)
 
-# %%
 # pull list of peps
 _LOGGER.info("Establishing connection to database.")
 conn = psycopg2.connect(
@@ -83,7 +79,6 @@ conn = psycopg2.connect(
 )
 curs = conn.cursor()
 
-# %%
 # test connection
 _LOGGER.info("Testing connection to database.")
 curs.execute("SELECT 1")
@@ -92,7 +87,6 @@ if not res == (1,):
     _LOGGER.error("Connection to database failed.")
     sys.exit(1)
 
-# %%
 # get list of peps
 _LOGGER.info("Pulling PEPs from database.")
 curs.execute(
@@ -103,13 +97,13 @@ projects = curs.fetchall()
 # map list of tuples to list of dicts
 _LOGGER.info(f"Found {len(projects)} PEPs.")
 
-# %%
+
 # initialize encoder
 _LOGGER.info("Initializing encoder.")
 encoder = PEPEncoder(args.hf_model, keywords_file=args.keywords_file)
 EMBEDDING_DIM = 384 # hardcoded for sentence-transformers/all-MiniLM-L12-v2 and BAAI/bge-small-en-v1.5
 _LOGGER.info(f"Computing embeddings of {EMBEDDING_DIM} dimensions.")
-# %%
+
 # encode PEPs in batches
 _LOGGER.info("Encoding PEPs.")
 BATCH_SIZE = args.batch_size or DEFAULT_BATCH_SIZE
@@ -133,7 +127,7 @@ for batch in tqdm(
         _LOGGER.info(f"First description: {descs[0]}")
     # encode descriptions
     try:
-        embeddings = encoder.embed(descs)
+        embeddings = encoder.encode(descs)
         projects_encoded.extend(
             [
                 dict(
@@ -149,7 +143,6 @@ for batch in tqdm(
         _LOGGER.error(f"Error encoding batch: {e}")
     i += 1
 
-# %%
 _LOGGER.info("Encoding complete.")
 _LOGGER.info("Connecting to Qdrant.")
 
@@ -165,7 +158,6 @@ qdrant = QdrantClient(
     api_key=QDRANT_API_KEY,
 )
 
-# %%
 # get the collection info
 COLLECTION = (
     args.qdrant_collection
@@ -173,7 +165,6 @@ COLLECTION = (
     or QDRANT_DEFAULT_COLLECTION
 )
 
-# %%
 # recreate the collection if necessary
 if args.recreate_collection:
     qdrant.recreate_collection(
@@ -222,7 +213,6 @@ _LOGGER.info(f"Collection status: {collection_info.status}")
 _LOGGER.info("Inserting embeddings into Qdrant.")
 _LOGGER.info("Building point strcutures.")
 
-# %%
 # build up point structs
 all_points = [
     PointStruct(
@@ -236,7 +226,6 @@ all_points = [
 # determine upsert batch size
 UPSERT_BATCH_SIZE = args.upsert_batch_size or DEFAULT_UPSERT_BATCH_SIZE
 
-# %%
 # upsert in batches, it will timeout if we do not
 # a good batch size is ~1000 vectors. Running locally, this is super quick.
 for batch in tqdm(
