@@ -5,6 +5,7 @@ import logging
 import os
 from qdrant_client.http import models
 from qdrant_client.http.models import PointStruct
+from concurrent.futures import ThreadPoolExecutor
 
 from tqdm import tqdm
 from logmuse import init_logger
@@ -58,6 +59,8 @@ def main():
         recreate_collection=recreate_collection, embedding_dim=embedding_dimensions
     )
 
+    _LOGGER.info("Fetching PEPs from database.")
+
     with Session(agent.pep_db_engine.engine) as session:
         statement = select(
             Projects.namespace,
@@ -73,40 +76,68 @@ def main():
 
     _LOGGER.info(f"Found {len(projects)} PEPs.")
 
+    _LOGGER.info("Starting indexing process....")
     # we need to work in batches since its much faster
-    projects_encoded = []
     for i, batch in enumerate(
         tqdm(batch_generator(projects, batch_size), total=len(projects) // batch_size)
     ):
-        # build list of descriptions for batch
-        points = []
-        for p in batch:
-            description = markdown_to_text(p.description)
-            dense_text = mine_metadata_from_dict(
-                p.config, name=p.name, description=description
-            )
-            sparse_text = f"{p.name}. {description}"
+        # First pass: collect all texts and metadata from batch
+        batch_data = []
+        dense_texts = []
+        sparse_texts = []
 
-            embeddings_list = list(dense_encoder.embed(dense_text))
-            sparse_result = sparce_encoder.encode(sparse_text).coalesce()
+        for p in batch:
+            try:
+                description = markdown_to_text(p.description)
+                dense_text = mine_metadata_from_dict(
+                    p.config, name=p.name, description=description
+                )
+                sparse_text = f"{p.name}. {description}"
+                batch_info = {
+                    "id": p.id,
+                    "sparse_text": sparse_text,
+                    "namespace": p.namespace,
+                    "name": p.name,
+                    "tag": p.tag,
+                    "private": p.private,
+                }
+
+                dense_texts.append(dense_text)
+                sparse_texts.append(sparse_text)
+                batch_data.append(batch_info)
+            except Exception as e:
+                _LOGGER.error(f"Error processing PEP {p.namespace}/{p.name}:{p.tag}: {e}")
+                continue
+
+        # Batch encode all dense texts at once
+        dense_embeddings_list = list(dense_encoder.embed(dense_texts, parallel=4))
+
+        # Batch encode all sparse texts at once
+        sparse_results = sparce_encoder.encode(sparse_texts, batch_size=64, convert_to_tensor=False)
+
+        # Second pass: create points from batch results
+        points = []
+        for data, dense, sparse in zip(batch_data, dense_embeddings_list, sparse_results):
+
+            sparse_col = sparse.coalesce()
 
             sparse_embeddings = models.SparseVector(
-                indices=sparse_result.indices().tolist()[0],
-                values=sparse_result.values().tolist(),
+                indices=sparse_col.indices().tolist()[0],
+                values=sparse_col.values().tolist(),
             )
 
             points.append(
                 PointStruct(
-                    id=p.id,
+                    id=data["id"],
                     vector={
-                        "dense": list(embeddings_list[0]),
+                        "dense": list(dense),
                         "sparse": sparse_embeddings,
                     },
                     payload={
-                        "description": sparse_text,
-                        "registry": f"{p.namespace}/{p.name}:{p.tag}",
-                        "private": p.private,
-                        "name": p.name,
+                        "description": data["sparse_text"],
+                        "registry": f"{data['namespace']}/{data['name']}:{data['tag']}",
+                        "private": data["private"],
+                        "name": data["name"],
                     },
                 )
             )
