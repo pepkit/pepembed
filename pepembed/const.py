@@ -14,19 +14,28 @@ VERSIONS = {
     "python_version": python_version(),
 }
 
-DEFAULT_KEYWORDS = ["cell", "protocol", "description", "processing", "source"]
-DEFAULT_MODEL = "sentence-transformers/all-MiniLM-L12-v2"
+DEFAULT_KEYWORDS = [
+    "summary",
+    "title",
+    "cell",
+    "protocol",
+    "processing",
+    "source",
+    "design",
+    "organism",
+]
 
+DENSE_ENCODER_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+SPARSE_ENCODER_MODEL = "naver/splade-v3"
 MIN_DESCRIPTION_LENGTH = 5
 
 PROJECT_TABLE = "projects"
 CONFIG_COLUMN = "config"
 PROJECT_NAME_COLUMN = "name"
-CONFIG_COLUMN = "config"
 NAMESPACE_COLUMN = "namespace"
 DESCRIPTION_COLUNM = "description"
 TAG_COLUMN = "tag"
 ROW_ID_COLUMN = "id"
 
-DEFAULT_BATCH_SIZE = 100
-DEFAULT_UPSERT_BATCH_SIZE = 1000
+DEFAULT_BATCH_SIZE = 800
+DEFAULT_UPSERT_BATCH_SIZE = 800

@@ -1,9 +1,10 @@
 logmuse
 fastembed
-peppy
+peppy>=0.40.7
 python-dotenv
-qdrant-client
-psycopg2
+qdrant-client>=1.16.1
+psycopg>=3.3.2
 ubiquerg
 tqdm
-flatdict
+flatdict>=4.0.1
+pepdbagent>=0.12.3
