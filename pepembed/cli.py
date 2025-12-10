@@ -27,6 +27,7 @@ from .argparser import build_argparser
 
 from .utils import batch_generator, markdown_to_text, mine_metadata_from_dict
 from .connections import get_db_agent, get_qdrant, get_sparce_model, get_dense_model
+from .id_tracker import IDTracker
 
 
 _LOGGER = init_logger(name=PKG_NAME, level=LOGGING_LEVEL)
@@ -59,6 +60,11 @@ def main():
         recreate_collection=recreate_collection, embedding_dim=embedding_dimensions
     )
 
+    # Initialize ID tracker
+    id_tracker = IDTracker()
+    tracker_stats = id_tracker.get_stats()
+    _LOGGER.info(f"ID Tracker initialized: {tracker_stats['total_processed']} IDs already processed")
+
     _LOGGER.info("Fetching PEPs from database.")
 
     with Session(agent.pep_db_engine.engine) as session:
@@ -74,7 +80,11 @@ def main():
         # statement = statement.where(Projects.namespace == "geo").limit(10000)
         projects = session.execute(statement).all()
 
-    _LOGGER.info(f"Found {len(projects)} PEPs.")
+    _LOGGER.info(f"Found {len(projects)} PEPs from database.")
+
+    # Filter out already processed projects
+    projects = id_tracker.filter_unprocessed(projects)
+    _LOGGER.info(f"After filtering: {len(projects)} PEPs to process.")
 
     _LOGGER.info("Starting indexing process....")
     # we need to work in batches since its much faster
@@ -147,6 +157,10 @@ def main():
             points=points,
         )
         print(operation_info)
+
+        # Mark batch as processed after successful upsert
+        processed_ids = [data["id"] for data in batch_data]
+        id_tracker.mark_batch_processed(processed_ids)
 
 
 if __name__ == "__main__":
