@@ -57,7 +57,6 @@ def pepembed(
         _LOGGER.error("Any of required environment variables are not set. Exiting...")
         sys.exit(1)
 
-
     _LOGGER.info("Connecting to database.")
     agent = get_db_agent()
 
