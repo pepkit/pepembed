@@ -53,8 +53,10 @@ def pepembed(
     """
     load_dotenv()
 
-    for var in REQUIRED_ENV_VARS:
-        check_env_variable(var)
+    if all([check_env_variable(var) for var in REQUIRED_ENV_VARS]):
+        _LOGGER.error("Any of required environment variables are not set. Exiting...")
+        sys.exit(1)
+
 
     _LOGGER.info("Connecting to database.")
     agent = get_db_agent()

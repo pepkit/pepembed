@@ -77,10 +77,12 @@ def mine_metadata_from_dict(
     return desc.strip()
 
 
-def check_env_variable(var_name: str) -> None:
+def check_env_variable(var_name: str) -> bool:
     """
     Check if an environment variable is set. if not, print a warning message.
     """
 
     if os.environ.get(var_name) is None:
         _LOGGER.warning(f"Environment variable {var_name} is not set.")
+        return False
+    return True
