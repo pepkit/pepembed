@@ -178,11 +178,13 @@ def pepembed(
             points=points,
             wait=False,
         )
-        print(operation_info)
+        _LOGGER.info(f"Qdrant operation: {operation_info}")
 
         # Mark batch as processed after successful upsert
         processed_ids = [data["id"] for data in batch_data]
         id_tracker.mark_batch_processed(processed_ids)
+
+    _LOGGER.info("Indexing process completed.")
 
 
 if __name__ == "__main__":
