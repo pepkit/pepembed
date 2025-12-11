@@ -1,8 +1,9 @@
 #! /usr/bin/env python
 
 import os
-from setuptools import setup
 import sys
+
+from setuptools import setup
 
 PACKAGE = "pepembed"
 REQDIR = "requirements"
@@ -45,9 +46,10 @@ setup(
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: BSD License",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
     ],
     keywords="project, bioinformatics, sequencing, ngs, workflow, GUI",
@@ -56,7 +58,7 @@ setup(
     license="BSD2",
     entry_points={
         "console_scripts": [
-            "pepembed = pepembed.cli:main",
+            "pepembed = pepembed.__main__:main",
         ],
     },
     package_data={PACKAGE: ["templates/*"]},

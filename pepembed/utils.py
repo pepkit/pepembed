@@ -1,9 +1,13 @@
-from typing import List, Dict, Generator, Any
+import os
 import re
+from logging import getLogger
+from typing import Any, Dict, Generator, List
+
 import flatdict
 
+from .const import DEFAULT_KEYWORDS, PKG_NAME
 
-from .const import DEFAULT_KEYWORDS
+_LOGGER = getLogger(PKG_NAME)
 
 
 def read_in_key_words(key_words_file: str) -> List[str]:
@@ -71,3 +75,12 @@ def mine_metadata_from_dict(
     if name and description:
         return f"Name: {name}. Description: {description}. Metadata: {desc.strip()}"
     return desc.strip()
+
+
+def check_env_variable(var_name: str) -> None:
+    """
+    Check if an environment variable is set. if not, print a warning message.
+    """
+
+    if os.environ.get(var_name) is None:
+        _LOGGER.warning(f"Environment variable {var_name} is not set.")

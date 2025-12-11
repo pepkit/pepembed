@@ -1,5 +1,5 @@
-from platform import python_version
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
+from platform import python_version
 
 PKG_NAME = "pepembed"
 
@@ -30,3 +30,14 @@ SPARSE_ENCODER_MODEL = "naver/splade-v3"
 MIN_DESCRIPTION_LENGTH = 5
 
 DEFAULT_BATCH_SIZE = 800
+
+REQUIRED_ENV_VARS = [
+    "POSTGRES_HOST",
+    "POSTGRES_DB",
+    "POSTGRES_USER",
+    "POSTGRES_PASSWORD",
+    "POSTGRES_PORT",
+    "QDRANT_HOST",
+    "QDRANT_API_KEY",
+    "HF_TOKEN",
+]

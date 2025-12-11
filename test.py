@@ -1,5 +1,4 @@
-from pepembed import cli
-
+from pepembed import pepembed
 
 if __name__ == "__main__":
-    cli.main()
+    pepembed.pepembed()

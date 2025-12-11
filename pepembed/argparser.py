@@ -1,132 +1,98 @@
-from ubiquerg import VersionInHelpParser
+import logging
+import os
+from typing import Optional
 
-from . import __version__
-from .const import *
+import typer
+from dotenv import load_dotenv
+
 from ._version import __version__ as pepembed_version
+from .const import (
+    DEFAULT_BATCH_SIZE,
+    DENSE_ENCODER_MODEL,
+    PKG_NAME,
+    QDRANT_DEFAULT_COLLECTION,
+    SPARSE_ENCODER_MODEL,
+)
+
+_LOGGER = logging.getLogger(PKG_NAME)
+
+app = typer.Typer(
+    name=PKG_NAME,
+    help="Run embedding on PEPs",
+    epilog="pephub.databio.org",
+    add_completion=False,
+)
 
 
 def build_argparser():
-    banner = "%(prog)s - Run embedding on PEPs"
-    additional_description = "pephub.databio.org"
+    """
+    Build and return the typer app for CLI argument parsing.
+    This function maintains compatibility with the original argparse interface.
+    """
+    return app
 
-    parser = VersionInHelpParser(
-        prog=PKG_NAME,
-        description=banner,
-        epilog=additional_description,
-        version=pepembed_version,
+
+def version_callback(value: bool):
+    if value:
+        typer.echo(f"pepembed version: {pepembed_version}")
+        raise typer.Exit()
+
+
+@app.command()
+def main(
+    qdrant_collection: Optional[str] = typer.Option(
+        None,
+        help="Qdrant collection name",
+    ),
+    recreate_collection: bool = typer.Option(
+        True,
+        help="Recreate collection if it exists",
+    ),
+    batch_size: int = typer.Option(
+        DEFAULT_BATCH_SIZE,
+        help="Batch size for embedding",
+    ),
+    dense_model: Optional[str] = typer.Option(
+        None,
+        help="HuggingFace dense encoder model",
+    ),
+    sparse_model: Optional[str] = typer.Option(
+        None,
+        help="HuggingFace sparse encoder model",
+    ),
+    env_var: Optional[str] = typer.Option(
+        None,
+        help="Path to .env file, if not set, will not load any .env file",
+    ),
+    version: bool = typer.Option(
+        None, "--version", "-v", callback=version_callback, help="App version"
+    ),
+):
+    """Run embedding on PEPs"""
+    # Import here to avoid circular imports
+    from .pepembed import pepembed
+
+    if env_var:
+        load_dotenv(dotenv_path=env_var)
+
+    collection_name = qdrant_collection or os.environ.get(
+        "QDRANT_COLLECTION", QDRANT_DEFAULT_COLLECTION
+    )
+    hf_model_dense = dense_model or os.environ.get(
+        "HF_MODEL_DENSE", DENSE_ENCODER_MODEL
+    )
+    hf_model_sparse = sparse_model or os.environ.get(
+        "HF_MODEL_SPARSE", SPARSE_ENCODER_MODEL
     )
 
-    parser.add_argument(
-        "--verbosity",
-        dest="verbosity",
-        type=int,
-        choices=range(len(LEVEL_BY_VERBOSITY)),
-        help="Choose level of verbosity (default: %(default)s)",
+    pepembed(
+        batch_size=batch_size,
+        recreate_collection=recreate_collection,
+        collection_name=collection_name,
+        hf_model_dense=hf_model_dense,
+        hf_model_sparse=hf_model_sparse,
     )
 
-    parser.add_argument(
-        "--dbg",
-        dest="dbg",
-        action="store_true",
-        help="Enable debug mode (default: %(default)s)",
-    )
 
-    parser.add_argument(
-        "-m",
-        "--hf-model",
-        dest="hf_model",
-        default="sentence-transformers/all-MiniLM-L12-v2",
-        help="Huggingface model registry (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--keywords-file",
-        dest="keywords_file",
-        default=None,
-        help="File containing keywords to search for (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--postgres-host",
-        dest="postgres_host",
-        default=None,
-        help="Postgres host (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--postgres-port",
-        dest="postgres_port",
-        default=5432,
-        help="Postgres port (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--postgres-user",
-        dest="postgres_user",
-        default=None,
-        help="Postgres user (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--postgres-password",
-        dest="postgres_password",
-        default=None,
-        help="Postgres password (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--postgres-db",
-        dest="postgres_db",
-        default=None,
-        help="Postgres database (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--qdrant-host",
-        dest="qdrant_host",
-        default=None,
-        help="Qdrant host (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--qdrant-port",
-        dest="qdrant_port",
-        default=None,
-        help="Qdrant port (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--qdrant-collection",
-        dest="qdrant_collection",
-        default=None,
-        help="Qdrant collection name (default: %(default)s)",
-    )
-    parser.add_argument(
-        "--qdrant-api-key",
-        dest="qdrant_api_key",
-        default=None,
-        help="Qdrant API key (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--recreate-collection",
-        dest="recreate_collection",
-        action="store_true",
-        help="Recreate collection if it exists (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--batch-size",
-        dest="batch_size",
-        default=100,
-        help="Batch size for embedding (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "--upsert-batch-size",
-        dest="upsert_batch_size",
-        default=1000,
-        help="Batch size for upserting embeddings into qdrant (default: %(default)s)",
-    )
-
-    return parser
+if __name__ == "__main__":
+    app()

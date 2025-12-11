@@ -1,69 +1,82 @@
 # %%
 import sys
-import logging
+from logging import getLogger
 
-import os
+from dotenv import load_dotenv
+from pepdbagent.db_utils import Projects
 from qdrant_client.http import models
 from qdrant_client.http.models import PointStruct
-from concurrent.futures import ThreadPoolExecutor
-
-from tqdm import tqdm
-from logmuse import init_logger
+from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
-from sqlalchemy import select, and_
+from tqdm import tqdm
 
-from pepdbagent.db_utils import Projects
-from dotenv import load_dotenv
-
+from .connections import get_db_agent, get_dense_model, get_qdrant, get_sparce_model
 from .const import (
-    LOGGING_LEVEL,
-    PKG_NAME,
     DEFAULT_BATCH_SIZE,
-    QDRANT_DEFAULT_COLLECTION,
     DENSE_ENCODER_MODEL,
+    PKG_NAME,
+    QDRANT_DEFAULT_COLLECTION,
+    REQUIRED_ENV_VARS,
     SPARSE_ENCODER_MODEL,
 )
-from .argparser import build_argparser
-
-from .utils import batch_generator, markdown_to_text, mine_metadata_from_dict
-from .connections import get_db_agent, get_qdrant, get_sparce_model, get_dense_model
 from .id_tracker import IDTracker
+from .utils import (
+    batch_generator,
+    check_env_variable,
+    markdown_to_text,
+    mine_metadata_from_dict,
+)
 
-
-_LOGGER = init_logger(name=PKG_NAME, level=LOGGING_LEVEL)
+_LOGGER = getLogger(name=PKG_NAME)
+_LOGGER.setLevel("INFO")
 
 
 # %%
-def main():
-    """Entry point for the CLI."""
+def pepembed(
+    batch_size: int = DEFAULT_BATCH_SIZE,
+    recreate_collection: bool = True,
+    collection_name: str = QDRANT_DEFAULT_COLLECTION,
+    hf_model_dense: str = DENSE_ENCODER_MODEL,
+    hf_model_sparse: str = SPARSE_ENCODER_MODEL,
+) -> None:
+    """
+    Main function to embed PEPs and store them in Qdrant.
+
+    :Args:
+        batch_size: The batch size for embedding. [default: 800]
+        recreate_collection: Whether to recreate the Qdrant collection. [default: True]
+        collection_name: The name of the Qdrant collection. [default: pephub]
+        hf_model_dense: The HuggingFace model to use for dense embeddings. [default: sentence-transformers/all-MiniLM-L6-v2]
+        hf_model_sparse: The HuggingFace model to use for sparse embeddings. [default: naver/splade-v3]
+    :Returns:
+        None
+    """
     load_dotenv()
-    # parser = build_argparser()
-    # args, _ = parser.parse_known_args()
-    #
-    # batch_size = args.batch_size or DEFAULT_BATCH_SIZE
-    # recreate_collection = args.recreate_collection or False
 
-    batch_size = DEFAULT_BATCH_SIZE
-    recreate_collection = True
-    collection_name = os.environ.get("QDRANT_COLLECTION", QDRANT_DEFAULT_COLLECTION)
+    for var in REQUIRED_ENV_VARS:
+        check_env_variable(var)
 
+    _LOGGER.info("Connecting to database.")
     agent = get_db_agent()
-    hf_model_dense = os.environ.get("HF_MODEL_DENSE", DENSE_ENCODER_MODEL)
-    hf_model_sparse = os.environ.get("HF_MODEL_SPARSE", SPARSE_ENCODER_MODEL)
 
     dense_encoder = get_dense_model(hf_model_dense)
     sparce_encoder = get_sparce_model(hf_model_sparse)
 
     embedding_dimensions = int(dense_encoder.get_embedding_size(hf_model_dense))
 
+    _LOGGER.info("Connecting to qdrant.")
     qdrant = get_qdrant(
-        recreate_collection=recreate_collection, embedding_dim=embedding_dimensions
+        collection_name=collection_name,
+        recreate_collection=recreate_collection,
+        embedding_dim=embedding_dimensions,
     )
 
     # Initialize ID tracker
     id_tracker = IDTracker()
     tracker_stats = id_tracker.get_stats()
-    _LOGGER.info(f"ID Tracker initialized: {tracker_stats['total_processed']} IDs already processed")
+    _LOGGER.info(
+        f"ID Tracker initialized: {tracker_stats['total_processed']} IDs already processed"
+    )
 
     _LOGGER.info("Fetching PEPs from database.")
 
@@ -116,18 +129,24 @@ def main():
                 sparse_texts.append(sparse_text)
                 batch_data.append(batch_info)
             except Exception as e:
-                _LOGGER.error(f"Error processing PEP {p.namespace}/{p.name}:{p.tag}: {e}")
+                _LOGGER.error(
+                    f"Error processing PEP {p.namespace}/{p.name}:{p.tag}: {e}"
+                )
                 continue
 
         # Batch encode all dense texts at once
         dense_embeddings_list = list(dense_encoder.embed(dense_texts, parallel=4))
 
         # Batch encode all sparse texts at once
-        sparse_results = sparce_encoder.encode(sparse_texts, batch_size=64, convert_to_tensor=False)
+        sparse_results = sparce_encoder.encode(
+            sparse_texts, batch_size=64, convert_to_tensor=False
+        )
 
         # Second pass: create points from batch results
         points = []
-        for data, dense, sparse in zip(batch_data, dense_embeddings_list, sparse_results):
+        for data, dense, sparse in zip(
+            batch_data, dense_embeddings_list, sparse_results
+        ):
 
             sparse_col = sparse.coalesce()
 
@@ -151,10 +170,13 @@ def main():
                     },
                 )
             )
-
+        if len(points) == 0:
+            _LOGGER.info(f"No valid points to upsert in batch {i}, skipping.")
+            continue
         operation_info = qdrant.upsert(
             collection_name=collection_name,
             points=points,
+            wait=False,
         )
         print(operation_info)
 
@@ -165,7 +187,7 @@ def main():
 
 if __name__ == "__main__":
     try:
-        sys.exit(main())
+        sys.exit(pepembed())
     except KeyboardInterrupt:
         _LOGGER.info("Interrupted by user")
         sys.exit(1)

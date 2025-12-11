@@ -1,11 +1,13 @@
-import peppy
-from logging import getLogger
-import pepembed
-from pepembed.pepembed import PEPEncoder
-from pepembed.const import *
 import os
-from peppy import Project
+from logging import getLogger
+
 import flatdict
+import peppy
+from peppy import Project
+
+import pepembed
+from pepembed.const import *
+from pepembed.pepembed import PEPEncoder
 
 _LOGGER = getLogger("pepembed")
 

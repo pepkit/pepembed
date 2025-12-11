@@ -1,24 +1,27 @@
-from qdrant_client import QdrantClient
-import os
 import logging
-from qdrant_client.http import models
+import os
 from typing import Union
-from pepdbagent import PEPDatabaseAgent
-from sentence_transformers import SparseEncoder
+
 from fastembed import TextEmbedding
+from pepdbagent import PEPDatabaseAgent
+from qdrant_client import QdrantClient
+from qdrant_client.http import models
+from sentence_transformers import SparseEncoder
 
 from .const import (
     PKG_NAME,
+    QDRANT_DEFAULT_COLLECTION,
     QDRANT_DEFAULT_HOST,
     QDRANT_DEFAULT_PORT,
-    QDRANT_DEFAULT_COLLECTION,
 )
 
 _LOGGER = logging.getLogger(PKG_NAME)
 
 
 def get_qdrant(
-    recreate_collection: bool = False, embedding_dim: Union[None, int] = None
+    collection_name=QDRANT_DEFAULT_COLLECTION,
+    recreate_collection: bool = False,
+    embedding_dim: Union[None, int] = None,
 ) -> QdrantClient:
     """
     Get a Qdrant client.
@@ -40,7 +43,6 @@ def get_qdrant(
         port=q_port,
         api_key=q_api_key,
     )
-    collection_name = os.environ.get("QDRANT_COLLECTION", QDRANT_DEFAULT_COLLECTION)
 
     collection_exist = qdrant.collection_exists(collection_name=collection_name)
 
