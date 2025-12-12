@@ -8,4 +8,5 @@ ubiquerg
 tqdm
 flatdict>=4.0.1
 pepdbagent>=0.12.3
+sentence-transformers>=5.2.0
 typer>=0.20.0
