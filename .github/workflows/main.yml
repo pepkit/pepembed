@@ -24,7 +24,7 @@ jobs:
     - name: Install pepembed
       run: |
         uv pip install torch --index-url https://download.pytorch.org/whl/cpu --system
-        uv pip install pepembed --system
+        uv pip install . --system
     
     - name: Run
       run: |
