@@ -43,5 +43,9 @@ jobs:
         git config --global user.name 'Oleksandr Khoroshevskyi'
         git config --global user.email 'khoroshevskyi@users.noreply.github.com'
         git add -A
-        git commit -m "Automated update of PEP embeddings"
-        git push
+        if git diff --cached --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Automated update of PEP embeddings"
+          git push
+        fi
