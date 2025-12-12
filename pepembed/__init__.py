@@ -1,5 +1,3 @@
-""" Package-level data """
-from ._version import __version__
-import logmuse
+"""Package-level data"""
 
-logmuse.init_logger("geofetch")
+from ._version import __version__
