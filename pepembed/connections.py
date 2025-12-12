@@ -23,14 +23,15 @@ def get_qdrant(
     recreate_collection: bool = False,
     embedding_dim: Union[None, int] = None,
 ) -> QdrantClient:
-    """
-    Get a Qdrant client.
+    """Get a Qdrant client.
 
-    :Args:
-        recreate_collection: Whether to recreate the collection if it does not exist. [default: False]
-        embedding_dim: The embedding dimension to use, for recreation of the collection [default: None]
-    :Returns:
-        QdrantClient: The Qdrant client.
+    Args:
+        collection_name: Name of the Qdrant collection.
+        recreate_collection: Whether to recreate the collection if it does not exist.
+        embedding_dim: The embedding dimension to use for recreation of the collection.
+
+    Returns:
+        The Qdrant client instance.
     """
     _LOGGER.info("Connecting to Qdrant.")
 
@@ -93,11 +94,10 @@ def get_qdrant(
 
 
 def get_db_agent() -> PEPDatabaseAgent:
-    """
-    Get the database connection string from environment variables.
+    """Get the database connection string from environment variables.
 
-    :Returns:
-        str: The database connection string.
+    Returns:
+        The PEP database agent instance.
     """
 
     agent = PEPDatabaseAgent(
@@ -111,13 +111,29 @@ def get_db_agent() -> PEPDatabaseAgent:
     return agent
 
 
-def get_sparce_model(sparce_model: str) -> Union[None, SparseEncoder]:
+def get_sparse_model(sparse_model: str) -> Union[None, SparseEncoder]:
+    """Get a sparse encoder model.
+
+    Args:
+        sparse_model: Name of the sparse encoder model.
+
+    Returns:
+        Sparse encoder instance, or None if HF_TOKEN is not set.
+    """
     token = os.environ.get("HF_TOKEN", None)
     if token is None:
         return None
-    sparse_model = SparseEncoder(sparce_model, token=token)
+    sparse_model = SparseEncoder(sparse_model, token=token)
     return sparse_model
 
 
 def get_dense_model(dense_model: str) -> Union[None, TextEmbedding]:
+    """Get a dense encoder model.
+
+    Args:
+        dense_model: Name of the dense encoder model.
+
+    Returns:
+        Text embedding instance.
+    """
     return TextEmbedding(dense_model)

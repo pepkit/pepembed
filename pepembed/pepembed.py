@@ -10,7 +10,7 @@ from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
 from tqdm import tqdm
 
-from .connections import get_db_agent, get_dense_model, get_qdrant, get_sparce_model
+from .connections import get_db_agent, get_dense_model, get_qdrant, get_sparse_model
 from .const import (
     DEFAULT_BATCH_SIZE,
     DENSE_ENCODER_MODEL,
@@ -39,17 +39,14 @@ def pepembed(
     hf_model_dense: str = DENSE_ENCODER_MODEL,
     hf_model_sparse: str = SPARSE_ENCODER_MODEL,
 ) -> None:
-    """
-    Main function to embed PEPs and store them in Qdrant.
+    """Main function to embed PEPs and store them in Qdrant.
 
-    :Args:
-        batch_size: The batch size for embedding. [default: 800]
-        recreate_collection: Whether to recreate the Qdrant collection. [default: True]
-        collection_name: The name of the Qdrant collection. [default: pephub]
-        hf_model_dense: The HuggingFace model to use for dense embeddings. [default: sentence-transformers/all-MiniLM-L6-v2]
-        hf_model_sparse: The HuggingFace model to use for sparse embeddings. [default: naver/splade-v3]
-    :Returns:
-        None
+    Args:
+        batch_size: The batch size for embedding.
+        recreate_collection: Whether to recreate the Qdrant collection.
+        collection_name: The name of the Qdrant collection.
+        hf_model_dense: The HuggingFace model to use for dense embeddings.
+        hf_model_sparse: The HuggingFace model to use for sparse embeddings.
     """
     load_dotenv()
 
@@ -61,7 +58,7 @@ def pepembed(
     agent = get_db_agent()
 
     dense_encoder = get_dense_model(hf_model_dense)
-    sparce_encoder = get_sparce_model(hf_model_sparse)
+    sparse_encoder = get_sparse_model(hf_model_sparse)
 
     embedding_dimensions = int(dense_encoder.get_embedding_size(hf_model_dense))
 
@@ -139,7 +136,7 @@ def pepembed(
         dense_embeddings_list = list(dense_encoder.embed(dense_texts, parallel=4))
 
         # Batch encode all sparse texts at once
-        sparse_results = sparce_encoder.encode(
+        sparse_results = sparse_encoder.encode(
             sparse_texts, batch_size=64, convert_to_tensor=False
         )
 

@@ -25,9 +25,12 @@ app = typer.Typer(
 
 
 def build_argparser():
-    """
-    Build and return the typer app for CLI argument parsing.
+    """Build and return the typer app for CLI argument parsing.
+
     This function maintains compatibility with the original argparse interface.
+
+    Returns:
+        The typer app instance for CLI argument parsing.
     """
     return app
 
@@ -68,7 +71,17 @@ def main(
         None, "--version", "-v", callback=version_callback, help="App version"
     ),
 ):
-    """Run embedding on PEPs"""
+    """Run embedding on PEPs.
+
+    Args:
+        qdrant_collection: Qdrant collection name.
+        recreate_collection: Whether to recreate collection if it exists.
+        batch_size: Batch size for embedding.
+        dense_model: HuggingFace dense encoder model.
+        sparse_model: HuggingFace sparse encoder model.
+        env_var: Path to .env file, if not set, will not load any .env file.
+        version: Display app version.
+    """
     # Import here to avoid circular imports
     from .pepembed import pepembed
 

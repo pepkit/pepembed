@@ -1,3 +1,5 @@
+name: Run pepembed to upload new PEP embeddings
+
 # https://crontab.guru/#0_2_*_*_1
 # Every Monday at 2:00AM
 on:
@@ -21,6 +23,7 @@ jobs:
 
     - name: Install pepembed
       run: |
+        uv pip install torch --index-url https://download.pytorch.org/whl/cpu --system
         uv pip install pepembed --system
     
     - name: Run

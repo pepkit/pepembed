@@ -14,7 +14,10 @@ _LOGGER = getLogger("pepembed")
 
 class Testpepembed:
     def test_search(self):
-        """Basic example of a test"""
+        """Basic example of a test.
+
+        Tests the metadata mining functionality from a PEP configuration.
+        """
         # hf_model = "sentence-transformers/all-MiniLM-L12-v2"   #this is the default in argsparser
         found = False
         keywordsfilepath = os.path.join(os.getcwd() + "/tests/data/keywordstest.txt")
