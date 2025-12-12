@@ -11,7 +11,14 @@ _LOGGER = getLogger(PKG_NAME)
 
 
 def read_in_key_words(key_words_file: str) -> List[str]:
-    """Read in key words from a file."""
+    """Read in key words from a file.
+
+    Args:
+        key_words_file: Path to the file containing keywords.
+
+    Returns:
+        List of keywords read from the file.
+    """
     key_words = []
     with open(key_words_file, "r") as f:
         for line in f:
@@ -20,13 +27,29 @@ def read_in_key_words(key_words_file: str) -> List[str]:
 
 
 def batch_generator(iterable, batch_size) -> Generator[Any, Any, None]:
-    """Batch generator."""
+    """Generate batches from an iterable.
+
+    Args:
+        iterable: The iterable to batch.
+        batch_size: Size of each batch.
+
+    Yields:
+        Batches of the specified size from the iterable.
+    """
     l = len(iterable)
     for ndx in range(0, l, batch_size):
         yield iterable[ndx : min(ndx + batch_size, l)]
 
 
 def markdown_to_text(md: str) -> str:
+    """Convert markdown text to plain text.
+
+    Args:
+        md: Markdown formatted text.
+
+    Returns:
+        Plain text with markdown formatting removed.
+    """
     # Remove markdown links: [text](url) → text
     text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", md)
     # Remove any other markdown markup if needed (bold, italics, etc.)
@@ -40,14 +63,16 @@ def mine_metadata_from_dict(
     name: str = "",
     keywords: List[str] = DEFAULT_KEYWORDS,
 ) -> str:
-    """
-    Mine the metadata from a dictionary.
+    """Mine the metadata from a dictionary.
 
-    :param project: A dictionary representing a peppy.Project instance.
-    :param description: An optional description to include.
-    :param name: An optional name to include.
-    :param keywords: A list of keywords to search for in the metadata.
+    Args:
+        project: A dictionary representing a peppy.Project instance.
+        description: An optional description to include.
+        name: An optional name to include.
+        keywords: A list of keywords to search for in the metadata.
 
+    Returns:
+        Extracted metadata as a formatted string.
     """
 
     project_config = project
@@ -78,8 +103,15 @@ def mine_metadata_from_dict(
 
 
 def check_env_variable(var_name: str) -> bool:
-    """
-    Check if an environment variable is set. if not, print a warning message.
+    """Check if an environment variable is set.
+
+    Prints a warning message if the variable is not set.
+
+    Args:
+        var_name: Name of the environment variable to check.
+
+    Returns:
+        True if the variable is set, False otherwise.
     """
 
     if os.environ.get(var_name) is None:
