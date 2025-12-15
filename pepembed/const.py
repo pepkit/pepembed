@@ -26,7 +26,7 @@ DEFAULT_KEYWORDS = [
 ]
 
 DENSE_ENCODER_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-SPARSE_ENCODER_MODEL = "naver/splade-v3"
+SPARSE_ENCODER_MODEL = "prithivida/Splade_PP_en_v1"
 MIN_DESCRIPTION_LENGTH = 5
 
 DEFAULT_BATCH_SIZE = 800

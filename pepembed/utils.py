@@ -115,6 +115,7 @@ def check_env_variable(var_name: str) -> bool:
     """
 
     if os.environ.get(var_name) is None:
-        _LOGGER.warning(f"Environment variable {var_name} is not set.")
+        _LOGGER.warning(f"Environment variable {var_name} is NOT set.")
         return False
+    _LOGGER.info(f"Environment variable {var_name} is  set.")
     return True

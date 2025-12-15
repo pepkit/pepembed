@@ -50,7 +50,7 @@ def pepembed(
     """
     load_dotenv()
 
-    if all([check_env_variable(var) for var in REQUIRED_ENV_VARS]):
+    if not all([check_env_variable(var) for var in REQUIRED_ENV_VARS]):
         _LOGGER.error("Any of required environment variables are not set. Exiting...")
         sys.exit(1)
 

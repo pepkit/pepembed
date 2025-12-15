@@ -120,10 +120,11 @@ def get_sparse_model(sparse_model: str) -> Union[None, SparseEncoder]:
     Returns:
         Sparse encoder instance, or None if HF_TOKEN is not set.
     """
-    token = os.environ.get("HF_TOKEN", None)
-    if token is None:
-        return None
-    sparse_model = SparseEncoder(sparse_model, token=token)
+    # token = os.environ.get("HF_TOKEN", None)
+    # if token is None:
+    #     return None
+    _LOGGER.info(f"Initializing sparse model: {sparse_model}")
+    sparse_model = SparseEncoder(sparse_model)
     return sparse_model
 
 
@@ -136,4 +137,5 @@ def get_dense_model(dense_model: str) -> Union[None, TextEmbedding]:
     Returns:
         Text embedding instance.
     """
+    _LOGGER.info(f"Initializing dense model: {dense_model}")
     return TextEmbedding(dense_model)
