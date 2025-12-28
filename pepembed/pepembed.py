@@ -51,7 +51,7 @@ def pepembed(
     load_dotenv()
 
     if not all([check_env_variable(var) for var in REQUIRED_ENV_VARS]):
-        _LOGGER.error("Any of required environment variables are not set. Exiting...")
+        _LOGGER.error("Some of required environment variables are not set. Exiting...")
         sys.exit(1)
 
     _LOGGER.info("Connecting to database.")
