@@ -26,7 +26,7 @@ DEFAULT_KEYWORDS = [
 ]
 
 DENSE_ENCODER_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-SPARSE_ENCODER_MODEL = "prithivida/Splade_PP_en_v1"
+SPARSE_ENCODER_MODEL = "prithivida/Splade_PP_en_v2"
 MIN_DESCRIPTION_LENGTH = 5
 
 DEFAULT_BATCH_SIZE = 800
@@ -39,5 +39,5 @@ REQUIRED_ENV_VARS = [
     # "POSTGRES_PORT",
     "QDRANT_HOST",
     "QDRANT_API_KEY",
-    "HF_TOKEN",
+    # "HF_TOKEN",
 ]
